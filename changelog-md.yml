@@ -1,0 +1,99 @@
+
+Config:
+
+        control: debian/control
+        changelog: debian/changelog
+        outputMD: CHANGELOG.md
+        debug: 0
+
+
+# Types of changes:
+#
+# "Added" for new features.
+# "Changed" for changes in existing functionality.
+# "Deprecated" for soon-to-be removed features.
+# "Removed" for now removed features.
+# "Fixed" for any bug fixes.
+# "Security" in case of vulnerabilities.
+
+Changes:
+
+        Added:
+                - add
+                - added
+                - adding
+                - create
+                - created
+                - new
+                - implemented
+                - import
+                - imported
+
+        Changed:
+                - merge mranch
+                - modify
+                - change
+                - changes
+                - changed
+                - update
+                - updates
+                - updated
+                - move
+                - disable
+                - disables
+                - disabled
+                - disallow
+                - enable
+                - enables
+                - enabled
+                - extend
+                - extendes
+                - extended
+                - resolve
+                - resolved
+                - upgrade
+                - upgraded
+                - merge
+                - merged
+                - rename
+                - renamed
+                - fake
+                - finish
+                - finished
+                - replace
+                - replaces
+                - replace
+                - progress
+
+        Removed:
+                - remove
+                - removed
+                - removing
+                - delete
+                - deleted
+                - purge
+
+        Fixed:
+                - bugfix
+                - fix
+                - fixed
+                - bug
+                - optimalization
+                - corection
+                - correct
+                - correction
+                - corections
+                - corrections
+                - conflicts
+                - revert
+                - refactoring
+
+        Security:
+                - secure
+                - security
+
+        Deprecated:
+                - obsolete
+                - deprecated
+                - deprecate
+

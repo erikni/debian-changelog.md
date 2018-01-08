@@ -1,0 +1,21 @@
+language: python
+dist: trusty
+sudo: enabled
+
+env:
+        - DEBIAN_CHANGELOG_YML=changelog-md.yml
+
+python:
+        - "2.7"
+
+branches:
+        only:
+        - master
+        - develop
+
+before_install:
+        - sudo apt-get install python-yaml -y
+
+# command to run tests
+script: python changelog-md.py
+
