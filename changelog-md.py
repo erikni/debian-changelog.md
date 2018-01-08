@@ -102,7 +102,7 @@ for versionLine in data:
 
         lineCnt = len(lines)
         lineNo  = 0
- 
+
         versionNo       = ''
         versionDate     = ''
         versionHistorys = {}
