@@ -14,7 +14,8 @@ branches:
         - develop
 
 before_install:
-        - sudo apt-get install python-yaml -y
+        - sudo apt-get install python-yaml python-pip -y
+        - sudo pip install pyaml
 
 # command to run tests
 script: python changelog-md.py
