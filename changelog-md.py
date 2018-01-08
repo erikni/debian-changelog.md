@@ -18,7 +18,7 @@ if not os.path.isfile( CHANGELOGYML ):
 
 # yaml config
 f = open( CHANGELOGYML, 'r' )
-yamlData = yaml.load( f.read() )
+yamlData = yaml.safe_load( f.read() )
 f.close()
 
 
@@ -53,7 +53,7 @@ if not os.path.isfile( params['control'] ):
 
 
 # Types of changes
-categorys = yamlData[ 'Changes' ].keys() 
+categorys = yamlData.get( 'Changes', [] ).keys() 
 categorys.append( 'Unknown' )
 
 categorysLower = []
@@ -76,15 +76,12 @@ packageTitle= commands.getoutput( 'cat %s | grep "Description:" | cut -d":" -f2'
 fw = open( params['outputMD'], 'wb' )
 
 fw.write( '# Changelog for %s (%s)\n' % (packageTitle, packageName) )
-fw.write( 'All notable changes to this project will be documented in this file.\n' )
-fw.write( '\n' ) 
+fw.write( 'All notable changes to this project will be documented in this file.\n\n' )
+
 fw.write( 'The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)\n' )
-fw.write( 'and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).\n' )
-fw.write( '\n' ) 
-fw.write( 'This is an automatically generated [changelog](%s), please do not edit\n' % params['changelog'] )
-fw.write( '\n' )
-#print '## [Unreleased]'
-#print 
+fw.write( 'and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).\n\n' )
+
+fw.write( 'This is an automatically generated [changelog](%s), please do not edit\n\n' % params['changelog'] )
 
 
 # debian changelog
@@ -105,7 +102,7 @@ for versionLine in data:
 
         lineCnt = len(lines)
         lineNo  = 0
-        
+ 
         versionNo       = ''
         versionDate     = ''
         versionHistorys = {}
