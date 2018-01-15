@@ -1,7 +1,7 @@
 Source: debian-changelog-md
 Section: net
 Priority: optional
-Build-Depends: cdbs, debhelper, python-setuptools, python-support
+Build-Depends: cdbs, debhelper, python-setuptools, python-support, dpkg-dev
 Maintainer: Erik Brozek <erik@brozek.name>
 
 Package: debian-changelog-md
