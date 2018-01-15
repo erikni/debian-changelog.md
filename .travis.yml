@@ -1,5 +1,4 @@
 language: python
-dist: trusty
 sudo: enabled
 
 env:
@@ -16,9 +15,8 @@ branches:
 before_install:
         - sudo apt-get install python-yaml python-pip python-setproctitle -y
         - sudo pip install pyyaml
-	- sudo dpkg-buildpackage -uc -us
-	- for file in `ls ../debian-changelog-md_*_all.deb`; do sudo dpkg -i $file; done;
+        - sudo dpkg-buildpackage -uc -us
+        - for file in `ls ../debian-changelog-md_*_all.deb`; do sudo dpkg -i $file; done;
 
 # command to run tests
 script: python changelog-md.py
-
