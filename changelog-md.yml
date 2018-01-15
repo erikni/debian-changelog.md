@@ -30,7 +30,8 @@ Changes:
                 - imported
 
         Changed:
-                - merge mranch
+                - merge branch
+                - reverts commit
                 - modify
                 - change
                 - changes
@@ -49,6 +50,7 @@ Changes:
                 - extend
                 - extendes
                 - extended
+                - final
                 - resolve
                 - resolved
                 - upgrade
@@ -64,6 +66,7 @@ Changes:
                 - replaces
                 - replace
                 - progress
+                - set
 
         Removed:
                 - remove
@@ -74,7 +77,9 @@ Changes:
                 - purge
 
         Fixed:
+                - bad
                 - bugfix
+                - bugfixed
                 - fix
                 - fixed
                 - bug
@@ -87,6 +92,7 @@ Changes:
                 - conflicts
                 - revert
                 - refactoring
+                - revision
 
         Security:
                 - secure

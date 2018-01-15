@@ -1,0 +1,5 @@
+debian-changelog-md (0.1.0) unstable; urgency=low
+
+  * debian package
+
+ -- Erik Brozek <erik@brozek.name>  Sat, 1 Jan 2018 23:00:02 +0200

@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# debian
+debian/debian-changelog-md/
+debian/python-module-stampdir/

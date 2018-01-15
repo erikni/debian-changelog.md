@@ -1,4 +1,28 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# ########################## Copyrights and license ############################
+#                                                                              #
+# Copyright 2017 Erik Brozek <erik@brozek.name>                 	       #
+#                                                                              #
+# This file is part of CaptainCI.                                              #
+# http://www.captainci.com                                                     #
+#                                                                              #
+# CaptainCI is free software: you can redistribute it and/or modify it under   #
+# the terms of the GNU Lesser General Public License as published by the Free  #
+# Software Foundation, either version 3 of the License, or (at your option)    #
+# any later version.                                                           #
+#                                                                              #
+# CaptainCI is distributed in the hope that it will be useful, but WITHOUT ANY #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    #
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more #
+# details.                                                                     #
+#                                                                              #
+# You should have received a copy of the GNU Lesser General Public License     #
+# along with CaptainCI. If not, see <http://www.gnu.org/licenses/>.            #
+#                                                                              #
+# ##############################################################################
+
 
 import commands, time, sys, os.path, yaml, os
 
@@ -67,9 +91,28 @@ for keyType in yamlData[ 'Changes' ].keys():
         for keyVal in yamlData[ 'Changes' ][ keyType ]:
                 categoryComments[ keyVal ] = keyType
 
-# package name
-packageName = commands.getoutput( 'head -n1 %s | cut -d" " -f1' % params['changelog'] ).strip()
-packageTitle= commands.getoutput( 'cat %s | grep "Description:" | cut -d":" -f2' % params['control'] ).strip()
+
+# Package 
+packageName = 'debian-unknown'
+names = open( params['changelog'], 'r' ).readline().split()
+if len(names) > 1:
+        packageName = names[0].strip()
+del names
+
+
+packageTitle= packageName
+for lines in open( params['control'], 'r' ).read().split('\n'):
+        if not lines:
+                continue
+
+        if not lines.startswith( 'Description:' ):
+                continue
+
+        line = lines.split(':')
+        if len(line) != 2:
+                continue
+
+        packageTitle = line[1].strip()
 
 
 # changelog.md
@@ -132,7 +175,7 @@ for versionLine in data:
                                 print '[debug]  info lineNo=%s, line="%s"' % (lineNo, line)
                         if line[0] == '*':
                                 line = line[1:].strip()
-                        
+ 
                         categoryName = line.lower().split(':')[0].strip()
                         if categoryName in categorysLower:
                                 categoryName = '%s%s' % ( categoryName[0].upper(), categoryName[1:].lower() )
@@ -141,7 +184,7 @@ for versionLine in data:
                                 categoryName = 'Unknown'
                                 comment = line.strip()
 
-                                findLine = ' %s ' % line.lower().replace('.',' ').replace(',',' ').replace('#',' ').replace(':',' ').replace('-',' ')
+                                findLine = ' %s ' % line.lower().replace('.',' ').replace(',',' ').replace('#',' ').replace(':',' ').replace('-',' ').replace(';',' ')
                                 for findKey in categoryComments.keys():
                                         findStr = ' %s ' % findKey.lower()
                                         if findLine.find( findStr ) > -1:
@@ -157,7 +200,7 @@ for versionLine in data:
 
         if not versionNo or not versionDate or not versionHistorys:
                 continue
-                
+
         if versionDate != __prevDate:
                 if DEBUG:
                         print  '[debug]  diff version=%s, date=%s, prev=%s' % (versionNo, versionDate, __prevDate)

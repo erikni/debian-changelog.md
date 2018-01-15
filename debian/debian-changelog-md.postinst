@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+# Automatically added by dh_pysupport
+if which update-python-modules >/dev/null 2>&1; then
+	update-python-modules  debian-changelog-md.public
+fi
+# End automatically added section
+
+if [ x"$1" != "xconfigure" ]; then
+    exit 0
+fi
+
+# PyYaml
+pip install pyyaml

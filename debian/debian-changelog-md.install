@@ -1,0 +1,2 @@
+changelog-md.py usr/bin
+changelog-md.yml etc/debian-changelog
