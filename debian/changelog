@@ -1,4 +1,4 @@
-debian-changelog-md (0.1.0) unstable; urgency=low
+deb-changelog-md (0.1.0) unstable; urgency=low
 
   * debian package
 
