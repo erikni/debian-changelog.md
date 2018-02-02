@@ -2,7 +2,7 @@ language: python
 sudo: enabled
 
 env:
-        - DEBIAN_CHANGELOG_YML=changelog-md.yml
+        - DEB_CHANGELOG_YML=changelog-md.yml
 
 python:
         - "2.7"

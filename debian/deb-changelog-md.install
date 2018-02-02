@@ -1,2 +1,2 @@
-changelog-md.py usr/bin
-changelog-md.yml etc/debian-changelog
+changelog-md.py  usr/bin
+changelog-md.yml etc/changelog-md

@@ -27,11 +27,11 @@
 import commands, time, sys, os.path, yaml, os
 
 
-# params DEBIAN_CHANGELOG_YML
-if os.environ[ 'DEBIAN_CHANGELOG_YML' ]:
-        CHANGELOGYML = os.environ[ 'DEBIAN_CHANGELOG_YML' ]
+# params DEB_CHANGELOG_YML
+if os.environ[ 'DEB_CHANGELOG_YML' ]:
+        CHANGELOGYML = os.environ[ 'DEB_CHANGELOG_YML' ]
 else:
-        CHANGELOGYML = '/etc/debian-changelog.md/changelog-md.yml'
+        CHANGELOGYML = '/etc/changelog-md/changelog-md.yml'
 
 # --
 

@@ -1,5 +1,15 @@
+deb-changelog-md (0.1.1) unstable; urgency=low
+
+  * Fixed: minor bugs
+  * Changed: rename from debian-changelog-md to deb-changelog-md
+  * Fixed: add depends
+  * Fixed: travis config
+  * Added: Contributor Covenant Code of Conduct
+
+ -- Erik Brozek <erik@brozek.name>  Sat, 3 Feb 2018 00:35:00 +0200
+
 deb-changelog-md (0.1.0) unstable; urgency=low
 
-  * debian package
+  * Added: debian package
 
  -- Erik Brozek <erik@brozek.name>  Sat, 1 Jan 2018 23:00:02 +0200
