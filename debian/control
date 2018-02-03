@@ -1,13 +1,15 @@
 Source: deb-changelog-md
-Section: net
+Section: utils
 Priority: optional
 Build-Depends: cdbs, debhelper, python-setuptools, python-support, dpkg-dev
 Maintainer: Erik Brozek <erik@brozek.name>
+Homepage: https://github.com/erikni/debian-changelog.md
+X-Python-Version: >= 2.7
 
 Package: deb-changelog-md
-Section: net
+Section: utils
 XB-Python-Version: ${python:Versions}
 Depends: ${python:Depends}, python-pip, python-setproctitle
 Architecture: all
-Description: changelog,md
+Description: changelog.md
  Generate CHANGELOG.md from debian/changelog

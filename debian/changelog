@@ -1,4 +1,11 @@
-deb-changelog-md (0.1.1) unstable; urgency=low
+deb-changelog-md (0.1.2) unstable; urgency=medium
+
+  * Fixed: update-python-modules
+  * Added: make config
+
+ -- Erik Brozek <erik@brozek.name>  Sat, 3 Feb 2018 01:20:00 +0200
+
+deb-changelog-md (0.1.1) unstable; urgency=medium
 
   * Fixed: minor bugs
   * Changed: rename from debian-changelog-md to deb-changelog-md
@@ -8,7 +15,7 @@ deb-changelog-md (0.1.1) unstable; urgency=low
 
  -- Erik Brozek <erik@brozek.name>  Sat, 3 Feb 2018 00:35:00 +0200
 
-deb-changelog-md (0.1.0) unstable; urgency=low
+deb-changelog-md (0.1.0) unstable; urgency=medium
 
   * Added: debian package
 
