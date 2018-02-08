@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 This is an automatically generated [changelog](debian/changelog), please do not edit
 
+## [0.1.3] - 2018-02-08
+### Fixed
+- test if exist environ DEB_CHANGELOG_YML
+
+
 ## [0.1.2] - 2018-02-03
 ### Added
 - make config
