@@ -28,10 +28,7 @@ import commands, time, sys, os.path, yaml, os
 
 
 # params DEB_CHANGELOG_YML
-if os.environ[ 'DEB_CHANGELOG_YML' ]:
-        CHANGELOGYML = os.environ[ 'DEB_CHANGELOG_YML' ]
-else:
-        CHANGELOGYML = '/etc/changelog-md/changelog-md.yml'
+CHANGELOGYML = os.environ.get( 'DEB_CHANGELOG_YML', '/etc/changelog-md/changelog-md.yml' )
 
 # --
 
@@ -108,7 +105,7 @@ for lines in open( params['control'], 'r' ).read().split('\n'):
         if not lines.startswith( 'Description:' ):
                 continue
 
-        line = lines.split(':')
+        line = lines.split(':',1)
         if len(line) != 2:
                 continue
 
