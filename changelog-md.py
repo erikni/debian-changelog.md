@@ -61,7 +61,9 @@ params = {
 for configName in ( 'control', 'changelog', 'outputMD', 'debug' ):
         params[ configName ] = yamlData[ 'Config' ][ configName ]
 
-DEBUG = params['debug']
+DEBUG = int(params['debug'])
+if DEBUG:
+        print '[debug] debug mode enabled'
 
 # test if exist
 if not os.path.isfile( params['changelog'] ):
@@ -155,7 +157,7 @@ for versionLine in data:
                 if lineNo == 1:
                         if DEBUG:
                                 print '[debug] first lineNo=%s, line="%s"' % (lineNo,line)
-                        versionNo = line.split(')')[0].strip()
+                        versionNo = line.split(')')[0].split('-')[0].strip()
 
                 elif lineNo == lineCnt:
                         if DEBUG:
@@ -206,12 +208,14 @@ for versionLine in data:
                 if DEBUG:
                         print  '[debug]  same version=%s, date=%s, prev=%s' % (versionNo, versionDate, __prevDate)
                 fw.write( '## [%s]\n' % (versionNo,) )
+
         for categoryName in categorys:
                 if categoryName in versionHistorys:
                         fw.write( '### %s\n' % categoryName )
                         for history in versionHistorys[categoryName]:
                                 fw.write( '- %s\n' % history )
                         fw.write( '\n' )
+
         fw.write( '\n' )
         __prevDate = versionDate
 
