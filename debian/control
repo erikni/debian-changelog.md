@@ -1,7 +1,7 @@
 Source: deb-changelog-md
 Section: utils
 Priority: optional
-Build-Depends: cdbs, debhelper, python-setuptools, python-support, dpkg-dev
+Build-Depends: cdbs, debhelper, python-setuptools, dpkg-dev
 Maintainer: Erik Brozek <erik@brozek.name>
 Homepage: https://github.com/erikni/debian-changelog.md
 X-Python-Version: >= 2.7
