@@ -52,14 +52,24 @@ if 'Config' not in yamlData:
         print '[debug] "Config" not in yaml config'
         sys.exit(1)
 
+envs 			= {}
+envs[ 'GIT_BRANCH' ]  	= 'master'
+if os.path.isfile( '.captainci-env-GIT_BRANCH' ):
+	envs[ 'GIT_BRANCH' ] = open('.captainci-env-GIT_BRANCH', 'r').read()
+
 params = {
-        'control'       : 'debian/control'      ,
-        'changelog'     : 'debian/changelog'    ,
-        'outputMD'      : 'CHANGELOG.md'        ,
-        'debug'         : 1                     ,
+        'control'       : 'debian/control',
+        'changelog'     : 'debian/changelog',
+        'outputMD'      : 'CHANGELOG.%s.md' % envs['GIT_BRANCH'],
+        'debug'         : 1,
 }
 for configName in ( 'control', 'changelog', 'outputMD', 'debug' ):
         params[ configName ] = yamlData[ 'Config' ][ configName ]
+
+	for envName in envs:
+		if type(params[ configName ]) != type( 'aaa' ):
+			continue
+		params[ configName ] = params[ configName ].replace( '{{%s}}' % envName, envs[envName] )
 
 DEBUG = int(params['debug'])
 if DEBUG:

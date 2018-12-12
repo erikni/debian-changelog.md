@@ -3,8 +3,8 @@ Config:
 
         control: debian/control
         changelog: debian/changelog
-        outputMD: CHANGELOG.md
-        debug: 0
+        outputMD: CHANGELOG.{{GIT_BRANCH}}.md
+        debug: 1
 
 
 # Types of changes:
@@ -28,6 +28,7 @@ Changes:
                 - implemented
                 - import
                 - imported
+		- initial 
 
         Changed:
                 - merge branch
@@ -70,6 +71,7 @@ Changes:
                 - replace
                 - progress
                 - set
+		- feature
 
         Removed:
                 - remove
@@ -93,6 +95,7 @@ Changes:
                 - correction
                 - corections
                 - corrections
+                - conflict
                 - conflicts
                 - revert
                 - refactoring
@@ -104,6 +107,6 @@ Changes:
 
         Deprecated:
                 - obsolete
-                - deprecated
                 - deprecate
+                - deprecated
 
