@@ -1,5 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
+
+"""
+Debian changelog
+"""
 
 # ########################## Copyrights and license ############################
 #                                                                              #
@@ -23,210 +27,270 @@
 #                                                                              #
 # ##############################################################################
 
-
-import commands, time, sys, os.path, yaml, os
-
-
-# params DEB_CHANGELOG_YML
-CHANGELOGYML = os.environ.get( 'DEB_CHANGELOG_YML', '/etc/changelog-md/changelog-md.yml' )
-
-# --
-
-# test: if exist
-if not os.path.isfile( CHANGELOGYML ):
-        print '[debug] yaml config="%s" not found' % CHANGELOGYML
-        sys.exit(1)
-
-# yaml config
-f = open( CHANGELOGYML, 'r' )
-yamlData = yaml.safe_load( f.read() )
-f.close()
+import os
+import time
+import yaml
 
 
-# Changes not exist
-if 'Changes' not in yamlData:
-        print '[debug] "Changes" not in yaml config'
-        sys.exit(1)
+class ChangelogMD(object):
+	""" Changelog object """
 
-if 'Config' not in yamlData:
-        print '[debug] "Config" not in yaml config'
-        sys.exit(1)
+	def __init__(self, debug_mode=0):
+		""" init """
 
-envs 			= {}
-envs[ 'GIT_BRANCH' ]  	= 'master'
-if os.path.isfile( '.captainci-env-GIT_BRANCH' ):
-	envs[ 'GIT_BRANCH' ] = open('.captainci-env-GIT_BRANCH', 'r').read()
+		# config
+		self.changelog_yml = os.environ.get('DEB_CHANGELOG_YML', '/etc/changelog-md/changelog-md.yml')
 
-params = {
-        'control'       : 'debian/control',
-        'changelog'     : 'debian/changelog',
-        'outputMD'      : 'CHANGELOG.%s.md' % envs['GIT_BRANCH'],
-        'debug'         : 1,
-}
-for configName in ( 'control', 'changelog', 'outputMD', 'debug' ):
-        params[ configName ] = yamlData[ 'Config' ][ configName ]
+		# debug mod
+		self.debug_mode = debug_mode
 
-	for envName in envs:
-		if type(params[ configName ]) != type( 'aaa' ):
-			continue
-		params[ configName ] = params[ configName ].replace( '{{%s}}' % envName, envs[envName] )
-
-DEBUG = int(params['debug'])
-if DEBUG:
-        print '[debug] debug mode enabled'
-
-# test if exist
-if not os.path.isfile( params['changelog'] ):
-        print '[debug] file "%s" not found' % params['changelog']
-        sys.exit(1)
-
-if not os.path.isfile( params['control'] ):
-        print '[debug] file "%s" not found' % params['control']
-        sys.exit(1)
+		self.params = {\
+			'control' : 'debian/control',\
+			'changelog' : 'debian/changelog',\
+			'debug' : 1,\
+		}
 
 
-# Types of changes
-categorys = yamlData.get( 'Changes', [] ).keys() 
-categorys.append( 'Unknown' )
+	def debug(self, msg=''):
+		""" debug mesg """
 
-categorysLower = []
-for categoryName in categorys:
-        categorysLower.append( categoryName.lower() )
+		if self.debug_mode:
+			print('[debug] %s' % msg)
+			return True
 
-
-# Changes keys
-categoryComments = {}
-for keyType in yamlData[ 'Changes' ].keys():
-        for keyVal in yamlData[ 'Changes' ][ keyType ]:
-                categoryComments[ keyVal ] = keyType
+		return False
 
 
-# Package 
-packageName = 'debian-unknown'
-names = open( params['changelog'], 'r' ).readline().split()
-if len(names) > 1:
-        packageName = names[0].strip()
-del names
+	def read(self):
+		""" read """
+
+		# test: if exist
+		if not os.path.isfile(self.changelog_yml):
+			self.debug('yaml config="%s" not found' % self.changelog_yml)
+			return False
+
+		# yaml config
+		yaml_file = open(self.changelog_yml, 'r')
+		yaml_data = yaml.safe_load(yaml_file.read())
+		yaml_file.close()
+
+		# Changes not exist
+		if 'Changes' not in yaml_data:
+			self.debug('"Changes" not in yaml config')
+			return False
+
+		if 'Config' not in yaml_data:
+			self.debug('"Config" not in yaml config')
+			return False
+
+		envs = {}
+		envs['GIT_BRANCH'] = 'master'
+		if os.path.isfile('.captainci-env-GIT_BRANCH'):
+			envs['GIT_BRANCH'] = open('.captainci-env-GIT_BRANCH', 'r').read()
+
+		self.params['outputMD'] = 'CHANGELOG.%s.md' % envs['GIT_BRANCH']
+
+		for config_name in ('control', 'changelog', 'outputMD', 'debug'):
+			self.params[config_name] = yaml_data['Config'][config_name]
+
+			for env_name in envs:
+				if type(self.params[config_name]) != type('aaa'):
+					continue
+				self.params[config_name] = self.params[config_name].replace('{{%s}}' % env_name, envs[env_name])
+
+		self.debug_mode = int(self.params['debug'])
+		self.debug('debug mode=%s' % self.debug_mode)
+
+		# test if exist
+		if not os.path.isfile(self.params['changelog']):
+			self.debug('file "%s" not found' % self.params['changelog'])
+			return False
+
+		if not os.path.isfile(self.params['control']):
+			self.debug('file "%s" not found' % self.params['control'])
+			return False
+
+		return yaml_data
 
 
-packageTitle= packageName
-for lines in open( params['control'], 'r' ).read().split('\n'):
-        if not lines:
-                continue
+	def __categories(self, yaml_data):
+		""" categories """
 
-        if not lines.startswith( 'Description:' ):
-                continue
+		# Types of changes
+		categories = []
+		for category_name in yaml_data.get('Changes', []).keys():
+			categories.append(category_name)
+		categories.append('Unknown')
 
-        line = lines.split(':',1)
-        if len(line) != 2:
-                continue
-
-        packageTitle = line[1].strip()
-
-
-# changelog.md
-fw = open( params['outputMD'], 'wb' )
-
-fw.write( '# Changelog for %s (%s)\n' % (packageTitle, packageName) )
-fw.write( 'All notable changes to this project will be documented in this file.\n\n' )
-
-fw.write( 'The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)\n' )
-fw.write( 'and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).\n\n' )
-
-fw.write( 'This is an automatically generated [changelog](%s), please do not edit\n\n' % params['changelog'] )
+		categories_lower = []
+		for category_name in categories:
+			categories_lower.append(category_name.lower())
 
 
-# debian changelog
-data = f = open( 'debian/changelog' ).read().split( '%s (' % packageName)
-__prevDate = ''
-for versionLine in data:
+		# Changes keys
+		category_comments = {}
+		for key_type in yaml_data['Changes'].keys():
+			for key_val in yaml_data['Changes'][key_type]:
+				category_comments[key_val] = key_type
 
-        lines   = []
-        for line in versionLine.split('\n'):
-                if not line:
-                        continue
 
-                line = line.strip()
-                if not line:
-                        continue
+		return categories, categories_lower, category_comments
 
-                lines.append( line )
 
-        lineCnt = len(lines)
-        lineNo  = 0
+	def __package(self):
+		""" package """
 
-        versionNo       = ''
-        versionDate     = ''
-        versionHistorys = {}
+		# Package
+		package_name = 'debian-unknown'
+		names = open(self.params['changelog'], 'r').readline().split()
+		if len(names) > 1:
+			package_name = names[0].strip()
+		del names
 
-        if DEBUG:
-                print '[debug]  info lineNo=%s, line="%s"' % (lineCnt, lines)
-        for line in lines:
-                lineNo = lineNo + 1
+		package_title = package_name
+		for lines in open(self.params['control'], 'r').read().split('\n'):
+			if not lines:
+				continue
 
-                if lineNo == 1:
-                        if DEBUG:
-                                print '[debug] first lineNo=%s, line="%s"' % (lineNo,line)
-                        versionNo = line.split(')')[0].split('-')[0].strip()
+			if not lines.startswith('Description:'):
+				continue
 
-                elif lineNo == lineCnt:
-                        if DEBUG:
-                                print '[debug]  last lineNo=%s, line="%s"' % (lineNo,line)
-                        versionDate = ''
+			line = lines.split(':', 1)
+			if len(line) != 2:
+				continue
 
-                        if DEBUG:
-                                print '[debug]  date lineNo=%s, line="%s"' % (lineNo, line.split(',')[-1].split('+')[0].strip() )
-                        timep = time.strptime( line.split(',')[-1].split('+')[0].strip(), '%d %b %Y %H:%M:%S' )
-                        versionDate = time.strftime( '%Y-%m-%d', timep )
+			package_title = line[1].strip()
 
-                else:
-                        if DEBUG:
-                                print '[debug]  info lineNo=%s, line="%s"' % (lineNo, line)
-                        if line[0] == '*':
-                                line = line[1:].strip()
- 
-                        categoryName = line.lower().split(':')[0].strip()
-                        if categoryName in categorysLower:
-                                categoryName = '%s%s' % ( categoryName[0].upper(), categoryName[1:].lower() )
-                                comment = line.split(':',1)[1].strip()
-                        else:
-                                categoryName = 'Unknown'
-                                comment = line.strip()
+		return package_name, package_title
 
-                                findLine = ' %s ' % line.lower().replace('.',' ').replace(',',' ').replace('#',' ').replace(':',' ').replace('-',' ').replace(';',' ')
-                                for findKey in categoryComments.keys():
-                                        findStr = ' %s ' % findKey.lower()
-                                        if findLine.find( findStr ) > -1:
-                                                categoryName = categoryComments[ findKey ]
-                                del findLine
 
-                        if categoryName not in versionHistorys:
-                                versionHistorys[ categoryName ] = []
+	def changelog(self, yaml_data):
+		""" generate changelog """
 
-                        versionHistorys[ categoryName ].append( comment )
-                        if DEBUG:
-                                print '[debug] write category="%s", message="%s"' % (categoryName, comment)
+		# package name + title
+		(package_name, package_title) = self.__package()
 
-        if not versionNo or not versionDate or not versionHistorys:
-                continue
+		# categories
+		(categories, categories_lower, category_comments) = self.__categories(yaml_data)
 
-        if versionDate != __prevDate:
-                if DEBUG:
-                        print  '[debug]  diff version=%s, date=%s, prev=%s' % (versionNo, versionDate, __prevDate)
-                fw.write( '## [%s] - %s\n' % (versionNo, versionDate) )
-        else:
-                if DEBUG:
-                        print  '[debug]  same version=%s, date=%s, prev=%s' % (versionNo, versionDate, __prevDate)
-                fw.write( '## [%s]\n' % (versionNo,) )
+		# ---
 
-        for categoryName in categorys:
-                if categoryName in versionHistorys:
-                        fw.write( '### %s\n' % categoryName )
-                        for history in versionHistorys[categoryName]:
-                                fw.write( '- %s\n' % history )
-                        fw.write( '\n' )
+		# changelog.md
+		self.debug('write file="%s"' % self.params['outputMD'])
+		fwr = open(self.params['outputMD'], 'w')
 
-        fw.write( '\n' )
-        __prevDate = versionDate
+		fwr.write('# Changelog for %s (%s)\n' % (package_title, package_name))
+		fwr.write('All notable changes to this project will be documented in this file.\n\n')
 
-fw.close()
+		fwr.write('The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)\n')
+		fwr.write('and this project adheres to [Semantic Versioning]')
+		fwr.write('(http://semver.org/spec/v2.0.0.html).\n\n')
+
+		fwr.write('This is an automatically generated [changelog](%s), ' % self.params['changelog'])
+		fwr.write('please do not edit\n\n')
+
+
+		# debian changelog
+		data = open('debian/changelog').read().split('%s (' % package_name)
+		__prev_date = ''
+		for version_line in data:
+
+			lines = []
+			for line in version_line.split('\n'):
+				if not line:
+					continue
+
+				line = line.strip()
+				if not line:
+					continue
+
+				lines.append(line)
+
+			line_cnt = len(lines)
+			line_no = 0
+
+			version_no = ''
+			version_date = ''
+			version_historys = {}
+
+			self.debug('info line_no=%s, line="%s"' % (line_cnt, lines))
+			for line in lines:
+				line_no = line_no + 1
+
+				if line_no == 1:
+					self.debug('first line_no=%s, line="%s"' % (line_no, line))
+					version_no = line.split(')')[0].split('-')[0].strip()
+
+				elif line_no == line_cnt:
+					self.debug('last line_no=%s, line="%s"' % (line_no, line))
+					version_date = ''
+
+					self.debug('date line_no=%s, line="%s"' %\
+							(line_no, line.split(',')[-1].split('+')[0].strip()))
+					timep = time.strptime(line.split(',')[-1].split('+')[0].strip(), '%d %b %Y %H:%M:%S')
+					version_date = time.strftime('%Y-%m-%d', timep)
+
+				else:
+					self.debug('info line_no=%s, line="%s"' % (line_no, line))
+					if line[0] == '*':
+						line = line[1:].strip()
+
+					category_name = line.lower().split(':')[0].strip()
+					if category_name in categories_lower:
+						category_name = '%s%s' % (category_name[0].upper(), category_name[1:].lower())
+						comment = line.split(':', 1)[1].strip()
+					else:
+						category_name = 'Unknown'
+						comment = line.strip()
+
+						find_line = ' %s ' % line.lower().replace('.', ' ')
+						find_line = find_line.replace(',', ' ').replace('#', ' ')
+						find_line = find_line.replace(':', ' ').replace('-', ' ')
+						find_line = find_line.replace(';', ' ')
+
+						for find_key in category_comments.keys():
+							find_str = ' %s ' % find_key.lower()
+							if find_line.find(find_str) > -1:
+								category_name = category_comments[find_key]
+
+						del find_line
+
+					if category_name not in version_historys:
+						version_historys[category_name] = []
+
+					version_historys[category_name].append(comment)
+					self.debug('write category="%s", message="%s"' %\
+						(category_name, comment))
+
+			if not version_no or not version_date or not version_historys:
+				continue
+
+			if version_date != __prev_date:
+				self.debug('diff version=%s, date=%s, prev=%s' %\
+					(version_no, version_date, __prev_date))
+				fwr.write('## [%s] - %s\n' % (version_no, version_date))
+			else:
+				self.debug('same version=%s, date=%s, prev=%s' %\
+					(version_no, version_date, __prev_date))
+				fwr.write('## [%s]\n' % (version_no,))
+
+			for category_name in categories:
+				if category_name in version_historys:
+					fwr.write('### %s\n' % category_name)
+					for history in version_historys[category_name]:
+						fwr.write('- %s\n' % history)
+					fwr.write('\n')
+
+			fwr.write('\n')
+			__prev_date = version_date
+
+		fwr.close()
+
+		return True
+
+
+if __name__ == '__main__':
+
+	CHANGELOG = ChangelogMD(1)
+	DATA = CHANGELOG.read()
+	CHANGELOG.changelog(DATA)
