@@ -29,8 +29,8 @@ Debian changelog
 
 import os
 import time
-import yaml
 import six
+import yaml
 
 
 class ChangelogMD(object):
@@ -248,7 +248,7 @@ class ChangelogMD(object):
 				version['no'] = line.split(')')[0].split('-')[0].strip()
 				continue
 
-			elif row['no'] == row['cnt']:
+			if row['no'] == row['cnt']:
 				self.debug('last line_no=%s, line="%s"' % (row['no'], line))
 				version['date'] = ''
 
