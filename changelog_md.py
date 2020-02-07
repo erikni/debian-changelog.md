@@ -30,6 +30,7 @@ Debian changelog
 import os
 import time
 import yaml
+import six
 
 
 class ChangelogMD(object):
@@ -39,7 +40,7 @@ class ChangelogMD(object):
 		""" init """
 
 		# config
-		self.changelog_yml = os.environ.get('DEB_CHANGELOG_YML', '/etc/changelog-md/changelog-md.yml')
+		self.changelog_yml = os.environ.get('DEB_CHANGELOG_YML', '/etc/changelog-md/changelog_md.yml')
 
 		# debug mod
 		self.debug_mode = debug_mode
@@ -49,6 +50,11 @@ class ChangelogMD(object):
 			'changelog' : 'debian/changelog',\
 			'debug' : 1,\
 		}
+
+		self.category = {'categories':[], 'lower':[], 'comments':{}}
+		self.package = {'name':'debian-unknown', 'title':'debian-unknown'}
+
+		self.__prev_date = ''
 
 
 	def debug(self, msg=''):
@@ -94,9 +100,9 @@ class ChangelogMD(object):
 			self.params[config_name] = yaml_data['Config'][config_name]
 
 			for env_name in envs:
-				if type(self.params[config_name]) != type('aaa'):
-					continue
-				self.params[config_name] = self.params[config_name].replace('{{%s}}' % env_name, envs[env_name])
+				if isinstance(self.params[config_name], six.string_types):
+					self.params[config_name] = self.params[config_name].replace(\
+						'{{%s}}' % env_name, envs[env_name])
 
 		self.debug_mode = int(self.params['debug'])
 		self.debug('debug mode=%s' % self.debug_mode)
@@ -133,6 +139,9 @@ class ChangelogMD(object):
 			for key_val in yaml_data['Changes'][key_type]:
 				category_comments[key_val] = key_type
 
+		self.category['categories'] = categories
+		self.category['lower'] = categories_lower
+		self.category['comments'] = category_comments
 
 		return categories, categories_lower, category_comments
 
@@ -161,25 +170,20 @@ class ChangelogMD(object):
 
 			package_title = line[1].strip()
 
+		self.package['name'] = package_name
+		self.package['title'] = package_title
+
 		return package_name, package_title
 
 
-	def changelog(self, yaml_data):
-		""" generate changelog """
-
-		# package name + title
-		(package_name, package_title) = self.__package()
-
-		# categories
-		(categories, categories_lower, category_comments) = self.__categories(yaml_data)
-
-		# ---
+	def __write_init(self):
+		""" file write """
 
 		# changelog.md
 		self.debug('write file="%s"' % self.params['outputMD'])
 		fwr = open(self.params['outputMD'], 'w')
 
-		fwr.write('# Changelog for %s (%s)\n' % (package_title, package_name))
+		fwr.write('# Changelog for %s (%s)\n' % (self.package['title'], self.package['name']))
 		fwr.write('All notable changes to this project will be documented in this file.\n\n')
 
 		fwr.write('The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)\n')
@@ -189,10 +193,26 @@ class ChangelogMD(object):
 		fwr.write('This is an automatically generated [changelog](%s), ' % self.params['changelog'])
 		fwr.write('please do not edit\n\n')
 
+		return fwr
+
+
+	def changelog(self, yaml_data):
+		""" generate changelog """
+
+		# package name + title
+		self.__package()
+
+		# categories
+		self.__categories(yaml_data)
+
+		# ---
+
+		# file write
+		fwr = self.__write_init()
 
 		# debian changelog
-		data = open('debian/changelog').read().split('%s (' % package_name)
-		__prev_date = ''
+		self.__prev_date = ''
+		data = open('debian/changelog').read().split('%s (' % self.package['name'])
 		for version_line in data:
 
 			lines = []
@@ -206,87 +226,99 @@ class ChangelogMD(object):
 
 				lines.append(line)
 
-			line_cnt = len(lines)
-			line_no = 0
-
-			version_no = ''
-			version_date = ''
-			version_historys = {}
-
-			self.debug('info line_no=%s, line="%s"' % (line_cnt, lines))
-			for line in lines:
-				line_no = line_no + 1
-
-				if line_no == 1:
-					self.debug('first line_no=%s, line="%s"' % (line_no, line))
-					version_no = line.split(')')[0].split('-')[0].strip()
-
-				elif line_no == line_cnt:
-					self.debug('last line_no=%s, line="%s"' % (line_no, line))
-					version_date = ''
-
-					self.debug('date line_no=%s, line="%s"' %\
-							(line_no, line.split(',')[-1].split('+')[0].strip()))
-					timep = time.strptime(line.split(',')[-1].split('+')[0].strip(), '%d %b %Y %H:%M:%S')
-					version_date = time.strftime('%Y-%m-%d', timep)
-
-				else:
-					self.debug('info line_no=%s, line="%s"' % (line_no, line))
-					if line[0] == '*':
-						line = line[1:].strip()
-
-					category_name = line.lower().split(':')[0].strip()
-					if category_name in categories_lower:
-						category_name = '%s%s' % (category_name[0].upper(), category_name[1:].lower())
-						comment = line.split(':', 1)[1].strip()
-					else:
-						category_name = 'Unknown'
-						comment = line.strip()
-
-						find_line = ' %s ' % line.lower().replace('.', ' ')
-						find_line = find_line.replace(',', ' ').replace('#', ' ')
-						find_line = find_line.replace(':', ' ').replace('-', ' ')
-						find_line = find_line.replace(';', ' ')
-
-						for find_key in category_comments.keys():
-							find_str = ' %s ' % find_key.lower()
-							if find_line.find(find_str) > -1:
-								category_name = category_comments[find_key]
-
-						del find_line
-
-					if category_name not in version_historys:
-						version_historys[category_name] = []
-
-					version_historys[category_name].append(comment)
-					self.debug('write category="%s", message="%s"' %\
-						(category_name, comment))
-
-			if not version_no or not version_date or not version_historys:
-				continue
-
-			if version_date != __prev_date:
-				self.debug('diff version=%s, date=%s, prev=%s' %\
-					(version_no, version_date, __prev_date))
-				fwr.write('## [%s] - %s\n' % (version_no, version_date))
-			else:
-				self.debug('same version=%s, date=%s, prev=%s' %\
-					(version_no, version_date, __prev_date))
-				fwr.write('## [%s]\n' % (version_no,))
-
-			for category_name in categories:
-				if category_name in version_historys:
-					fwr.write('### %s\n' % category_name)
-					for history in version_historys[category_name]:
-						fwr.write('- %s\n' % history)
-					fwr.write('\n')
-
-			fwr.write('\n')
-			__prev_date = version_date
+			self.__changelog_lines(lines, fwr)
 
 		fwr.close()
 
 		return True
+
+
+	def __changelog_lines(self, lines, fwr):
+		""" changelog lines """
+
+		row = {'cnt':len(lines), 'no':0}
+		version = {'no':'', 'date':'', 'historys':{}}
+
+		self.debug('info line_no=%s, line="%s"' % (row['cnt'], lines))
+		for line in lines:
+			row['no'] = row['no'] + 1
+
+			if row['no'] == 1:
+				self.debug('first line_no=%s, line="%s"' % (row['no'], line))
+				version['no'] = line.split(')')[0].split('-')[0].strip()
+				continue
+
+			elif row['no'] == row['cnt']:
+				self.debug('last line_no=%s, line="%s"' % (row['no'], line))
+				version['date'] = ''
+
+				self.debug('date line_no=%s, line="%s"' %\
+						(row['no'], line.split(',')[-1].split('+')[0].strip()))
+				timep = time.strptime(line.split(',')[-1].split('+')[0].strip(), '%d %b %Y %H:%M:%S')
+				version['date'] = time.strftime('%Y-%m-%d', timep)
+				continue
+
+			self.debug('info line_no=%s, line="%s"' % (row['no'], line))
+			if line[0] == '*':
+				line = line[1:].strip()
+
+			category_name = line.lower().split(':')[0].strip()
+			if category_name in self.category['lower']:
+				category_name = '%s%s' % (category_name[0].upper(), category_name[1:].lower())
+				comment = line.split(':', 1)[1].strip()
+			else:
+				category_name = 'Unknown'
+				comment = line.strip()
+
+				find_line = ' %s ' % line.lower().replace('.', ' ')
+				find_line = find_line.replace(',', ' ').replace('#', ' ')
+				find_line = find_line.replace(':', ' ').replace('-', ' ')
+				find_line = find_line.replace(';', ' ')
+
+				for find_key in self.category['comments']:
+					find_str = ' %s ' % find_key.lower()
+					if find_line.find(find_str) > -1:
+						category_name = self.category['comments'][find_key]
+
+				del find_line
+
+			if category_name not in version['historys']:
+				version['historys'][category_name] = []
+
+			version['historys'][category_name].append(comment)
+			self.debug('write category="%s", message="%s"' %\
+				(category_name, comment))
+
+
+		return self.__changelog_endlines(fwr, version)
+
+
+	def __changelog_endlines(self, fwr, version):
+		""" changelog endlines """
+
+		if not version['no'] or not version['date'] or not version['historys']:
+			return fwr
+
+		if version['date'] != self.__prev_date:
+			self.debug('diff version=%s, date=%s, prev=%s' %\
+				(version['no'], version['date'], self.__prev_date))
+			fwr.write('## [%s] - %s\n' % (version['no'], version['date']))
+		else:
+			self.debug('same version=%s, date=%s, prev=%s' %\
+				(version['no'], version['date'], self.__prev_date))
+			fwr.write('## [%s]\n' % (version['no'],))
+
+		for category_name in self.category['categories']:
+			if category_name in version['historys']:
+				fwr.write('### %s\n' % category_name)
+				for history in version['historys'][category_name]:
+					fwr.write('- %s\n' % history)
+				fwr.write('\n')
+
+		fwr.write('\n')
+		self.__prev_date = version['date']
+
+		return fwr
 
 
 if __name__ == '__main__':
