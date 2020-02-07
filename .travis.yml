@@ -5,7 +5,10 @@ env:
         - DEB_CHANGELOG_YML=changelog_md.yml
 
 python:
-        - "2.7"
+        - "3.5"
+        - "3.6"
+        - "3.7"
+        - "3.8"
 
 branches:
         only:
