@@ -11,13 +11,13 @@ This is an automatically generated [changelog](debian/changelog), please do not 
 - add env for CHANGELOG.__ENV__.md
 - update setupy.py for pip
 
-### Fixed
-- debug info
-
 ### Added
 - README info
 - setup|install script
 - changes keywords
+
+### Fixed
+- debug info
 
 
 ## [0.1.3] - 2018-02-08
@@ -26,24 +26,24 @@ This is an automatically generated [changelog](debian/changelog), please do not 
 
 
 ## [0.1.2] - 2018-02-03
-### Fixed
-- update-python-modules
-
 ### Added
 - make config
+
+### Fixed
+- update-python-modules
 
 
 ## [0.1.1]
 ### Changed
 - rename from debian-changelog-md to deb-changelog-md
 
+### Added
+- Contributor Covenant Code of Conduct
+
 ### Fixed
 - minor bugs
 - add depends
 - travis config
-
-### Added
-- Contributor Covenant Code of Conduct
 
 
 ## [0.1.0] - 2018-01-01
