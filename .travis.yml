@@ -21,6 +21,8 @@ before_install:
 
         - sudo pip3 install pyyaml
         - dpkg -L python3-yaml
+        - dpkg -L python3-pip
+        - dpkg -L python-pip
 
         - export PYTHONPATH=$PYTHONPATH:$PWD:/usr/lib/python3/dist-packages:/usr/local/lib/python3/dist-packages
         - export DEB_CHANGELOG_YML=changelog_md.yml
