@@ -73,12 +73,12 @@ sudo mkdir -p /etc/changelog-md
 echo " done"
 
 echo -n "* script install  ... "
-sudo cp /tmp/debian-changelog.md/changelog_md.py  /usr/bin/
+sudo cp -v /tmp/debian-changelog.md/changelog_md.py  /usr/bin/
 sudo chmod 755 /usr/bin/changelog_md.py
 echo " done"
 
 echo -n "* config install  ... "
-sudo cp /tmp/debian-changelog.md/changelog_md.yml /etc/changelog-md
+sudo cp -v /tmp/debian-changelog.md/changelog_md.yml /etc/changelog-md
 echo " done"
 
 echo
