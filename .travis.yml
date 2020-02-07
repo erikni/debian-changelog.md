@@ -22,12 +22,12 @@ before_install:
 # command to run tests
 script:
 
-	- echo "pylint changelog_md.py  ... "
-  	- pylint3 --errors-only changelog_md.py
+        - echo "pylint changelog_md.py  ... "
+        - pylint3 --errors-only changelog_md.py
 
-  	- echo "run changelog_md.py ... "
-  	- python3 changelog_md.py
+        - echo "run changelog_md.py ... "
+        - python3 changelog_md.py
 
-	- echo "build package ... "
+        - echo "build package ... "
         - sudo dpkg-buildpackage -uc -us
         - for file in `ls ../debian-changelog-md_*_all.deb`; do sudo dpkg -i $file; done;
