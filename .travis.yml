@@ -18,8 +18,10 @@ branches:
 before_install:
         - sudo apt-get install python3 python3-yaml python3-pip python3-setproctitle python3-setuptools pylint3 -y
         - sudo apt-get install cdbs debhelper dpkg-dev -y
+
         - sudo pip3 install pyyaml
         - dpkg -L python3-yaml
+
         - export PYTHONPATH=$PYTHONPATH:$PWD:/usr/lib/python3/dist-packages:/usr/local/lib/python3/dist-packages
         - export DEB_CHANGELOG_YML=changelog_md.yml
 
