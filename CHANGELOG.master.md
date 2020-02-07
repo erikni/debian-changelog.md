@@ -7,17 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 This is an automatically generated [changelog](debian/changelog), please do not edit
 
 ## [0.1.4] - 2018-12-12
-### Changed
-- add env for CHANGELOG.__ENV__.md
-- update setupy.py for pip
+### Fixed
+- debug info
 
 ### Added
 - README info
 - setup|install script
 - changes keywords
 
-### Fixed
-- debug info
+### Changed
+- add env for CHANGELOG.__ENV__.md
+- update setupy.py for pip
 
 
 ## [0.1.3] - 2018-02-08
@@ -26,24 +26,24 @@ This is an automatically generated [changelog](debian/changelog), please do not 
 
 
 ## [0.1.2] - 2018-02-03
-### Added
-- make config
-
 ### Fixed
 - update-python-modules
 
-
-## [0.1.1]
-### Changed
-- rename from debian-changelog-md to deb-changelog-md
-
 ### Added
-- Contributor Covenant Code of Conduct
+- make config
 
+
+## [0.1.1] 
 ### Fixed
 - minor bugs
 - add depends
 - travis config
+
+### Added
+- Contributor Covenant Code of Conduct
+
+### Changed
+- rename from debian-changelog-md to deb-changelog-md
 
 
 ## [0.1.0] - 2018-01-01

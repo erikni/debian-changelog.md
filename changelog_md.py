@@ -7,7 +7,7 @@ Debian changelog
 
 # ########################## Copyrights and license ############################
 #                                                                              #
-# Copyright 2017 Erik Brozek <erik@brozek.name>                 	       #
+# Copyright 2017-2020 Erik Brozek <erik@brozek.name>                 	       #
 #                                                                              #
 # This file is part of CaptainCI.                                              #
 # http://www.captainci.com                                                     #
@@ -81,13 +81,10 @@ class ChangelogMD:
 		yaml_file.close()
 
 		# Changes not exist
-		if 'Changes' not in yaml_data:
-			self.debug('"Changes" not in yaml config')
-			return False
-
-		if 'Config' not in yaml_data:
-			self.debug('"Config" not in yaml config')
-			return False
+		for name in ('Changes', 'Config'):
+			if name not in yaml_data:
+				self.debug('"%s" not in yaml config' % name )
+				return False
 
 		envs = {}
 		envs['GIT_BRANCH'] = 'master'
@@ -108,13 +105,10 @@ class ChangelogMD:
 		self.debug('debug mode=%s' % self.debug_mode)
 
 		# test if exist
-		if not os.path.isfile(self.params['changelog']):
-			self.debug('file "%s" not found' % self.params['changelog'])
-			return False
-
-		if not os.path.isfile(self.params['control']):
-			self.debug('file "%s" not found' % self.params['control'])
-			return False
+		for filename in ('changelog', 'control'):
+			if not os.path.isfile(self.params[filename]):
+				self.debug('file "%s" not found' % self.params[filename])
+				return False
 
 		return yaml_data
 
@@ -149,27 +143,25 @@ class ChangelogMD:
 	def __package(self):
 		""" package """
 
-		# Package
+
+		# package name
 		package_name = 'debian-unknown'
 		names = open(self.params['changelog'], 'r').readline().split()
 		if len(names) > 1:
 			package_name = names[0].strip()
 		del names
 
-		package_title = package_name
+		# package title
+		controls = {}
 		for lines in open(self.params['control'], 'r').read().split('\n'):
-			if not lines:
-				continue
-
-			if not lines.startswith('Description:'):
-				continue
-
 			line = lines.split(':', 1)
 			if len(line) != 2:
 				continue
+			controls[line[0]] = line[1].strip()
 
-			package_title = line[1].strip()
+		package_title = controls.get('Description', 'debian-unknown')
 
+		self.debug('package name="%s", title="%s"' % (package_name, package_title))
 		self.package['name'] = package_name
 		self.package['title'] = package_title
 
@@ -217,9 +209,6 @@ class ChangelogMD:
 
 			lines = []
 			for line in version_line.split('\n'):
-				if not line:
-					continue
-
 				line = line.strip()
 				if not line:
 					continue
@@ -299,21 +288,24 @@ class ChangelogMD:
 		if not version['no'] or not version['date'] or not version['historys']:
 			return fwr
 
+		__date = ''
+		__diff = 'same'
 		if version['date'] != self.__prev_date:
-			self.debug('diff version=%s, date=%s, prev=%s' %\
-				(version['no'], version['date'], self.__prev_date))
-			fwr.write('## [%s] - %s\n' % (version['no'], version['date']))
-		else:
-			self.debug('same version=%s, date=%s, prev=%s' %\
-				(version['no'], version['date'], self.__prev_date))
-			fwr.write('## [%s]\n' % (version['no'],))
+			__date = '- %s' % version['date']
+			__diff = 'diff'
+
+		self.debug('%s version=%s, date=%s, prev=%s' %\
+			(__diff, version['no'], version['date'], self.__prev_date))
+		fwr.write('## [%s] %s\n' % (version['no'], __date))
 
 		for category_name in self.category['categories']:
-			if category_name in version['historys']:
-				fwr.write('### %s\n' % category_name)
-				for history in version['historys'][category_name]:
-					fwr.write('- %s\n' % history)
-				fwr.write('\n')
+			if category_name not in version['historys']:
+				continue
+
+			fwr.write('### %s\n' % category_name)
+			for history in version['historys'][category_name]:
+				fwr.write('- %s\n' % history)
+			fwr.write('\n')
 
 		fwr.write('\n')
 		self.__prev_date = version['date']
