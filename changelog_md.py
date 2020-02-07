@@ -33,7 +33,7 @@ import six
 import yaml
 
 
-class ChangelogMD(object):
+class ChangelogMD:
 	""" Changelog object """
 
 	def __init__(self, debug_mode=0):
