@@ -2,40 +2,42 @@ language: python
 sudo: enabled
 
 env:
-        - DEB_CHANGELOG_YML=changelog_md.yml
+  - DEB_CHANGELOG_YML=changelog_md.yml
 
 python:
-        - "3.5"
-        - "3.6"
-        - "3.7"
-        - "3.8"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "3.7-dev"  # 3.7 development branch
+  - "3.8-dev"  # 3.8 development branch
+  - "nightly"  # nightly build
 
 branches:
-        only:
-        - master
-        - develop
+  only:
+  - master
+  - develop
 
 before_install:
-        - sudo apt-get install python3 python3-yaml python3-pip python3-setproctitle python3-setuptools pylint3 python-pip -y
-        - sudo apt-get install cdbs debhelper dpkg-dev -y
+  - sudo apt-get install python3 python3-yaml python3-pip python3-setproctitle python3-setuptools pylint3 python-pip -y
+  - sudo apt-get install cdbs debhelper dpkg-dev -y
 
-        - sudo pip3 install pyyaml
-        - dpkg -L python3-yaml
-        - dpkg -L python3-pip
-        - dpkg -L python-pip
+#  - sudo pip3 install pyyaml
+  - dpkg -L python3-yaml
+  - dpkg -L python3-pip
+  - dpkg -L python-pip
 
-        - export PYTHONPATH=$PYTHONPATH:$PWD:/usr/lib/python3/dist-packages:/usr/local/lib/python3/dist-packages
-        - export DEB_CHANGELOG_YML=changelog_md.yml
+  - export PYTHONPATH=$PYTHONPATH:$PWD:/usr/lib/python3/dist-packages:/usr/local/lib/python3/dist-packages
+  - export DEB_CHANGELOG_YML=changelog_md.yml
 
 # command to run tests
 script:
+  - echo "pylint changelog_md.py  ... "
+  - pylint3 --errors-only changelog_md.py
 
-        - echo "pylint changelog_md.py  ... "
-        - pylint3 --errors-only changelog_md.py
+  - echo "run changelog_md.py ... "
+  - python3 changelog_md.py
 
-        - echo "run changelog_md.py ... "
-        - python3 changelog_md.py
-
-        - echo "build package ... "
-        - sudo dpkg-buildpackage -uc -us
-        - for file in `ls ../debian-changelog-md_*_all.deb`; do sudo dpkg -i $file; done;
+  - echo "build package ... "
+  - sudo dpkg-buildpackage -uc -us
+  - for file in `ls ../debian-changelog-md_*_all.deb`; do sudo dpkg -i $file; done;
