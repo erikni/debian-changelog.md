@@ -20,6 +20,7 @@ Changes:
 
         Added:
                 - add
+                - adds
                 - added
                 - adding
                 - create
@@ -72,6 +73,8 @@ Changes:
                 - progress
                 - set
                 - feature
+		- clean
+		- cleans
 
         Removed:
                 - remove
@@ -89,7 +92,9 @@ Changes:
                 - fix
                 - fixe
                 - fixed
+                - fixes
                 - bug
+                - bugs
                 - optimalization
                 - corection
                 - correct
@@ -99,6 +104,8 @@ Changes:
                 - conflict
                 - conflicts
                 - revert
+                - refactored
+                - refactopred
                 - refactoring
                 - revision
 
