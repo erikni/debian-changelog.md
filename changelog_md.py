@@ -311,10 +311,3 @@ class ChangelogMD:
 		self.__prev_date = version['date']
 
 		return fwr
-
-
-if __name__ == '__main__':
-
-	CHANGELOG = ChangelogMD(1)
-	DATA = CHANGELOG.read()
-	CHANGELOG.changelog(DATA)

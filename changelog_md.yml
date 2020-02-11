@@ -73,8 +73,8 @@ Changes:
                 - progress
                 - set
                 - feature
-		- clean
-		- cleans
+                - clean
+                - cleans
 
         Removed:
                 - remove

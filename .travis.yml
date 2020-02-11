@@ -33,10 +33,13 @@ script:
   - echo "pylint changelog_md.py  ... "
   - pylint3 --errors-only changelog_md.py
 
-  - echo "run changelog_md.py ... "
+  - echo "run changelog_md ... "
   - python3 changelog_md.py
 
-  - echo ""
+  - echo "run examples ... "
+  - python3 test/example/*.py
+
+  - echo "changelog ... "
   - ls -l CHANGELOG.master.md
   - cat CHANGELOG.master.md
 
